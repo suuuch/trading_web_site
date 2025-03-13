@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ETF Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航条 -->
+    <nav class="bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 text-white font-bold">
+                        金融数据可视化
+                    </div>
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="text-white px-3 py-2 rounded-md text-sm font-medium {{ 'bg-gray-900' if active_page == 'home' }}">ETF数据</a>
+                        <a href="/bonds" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium {{ 'bg-gray-900' if active_page == 'bonds' }}">债券数据</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full px-4 py-8">
+        <!-- 顶部控制栏 -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex items-center">
+                <label for="start-date" class="text-gray-700 text-sm font-medium mr-2">起始日期：</label>
+                <input type="date" id="start-date" name="start-date"
+                       class="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <div class="flex gap-6">
+            <!-- 左侧图表区域 -->
+            <div class="w-[90%]">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div id="main-chart" class="h-[400px]"></div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div id="holdings-chart" class="h-[400px]"></div>
+                </div>
+            </div>
+
+            <!-- 右侧信息面板 -->
+            <div class="w-[10%] flex-shrink-0">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">ETF信息</h3>
+                    <div id="etf-info"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/mainChart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/holdingsChart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/etfInfo.js') }}"></script>
+</body>
+</html>

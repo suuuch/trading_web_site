@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bonds Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航条 -->
+    <nav class="bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 text-white font-bold">
+                        金融数据可视化
+                    </div>
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="/" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">ETF数据</a>
+                        <a href="/bonds" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">债券数据</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full px-4 py-8">
+        <!-- 债券图表 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">美日国债收益率对比</h2>
+            <div id="bonds-chart" class="h-[600px]"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bondsChart.js') }}"></script>
+</body>
+</html> 
