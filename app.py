@@ -123,7 +123,12 @@ def get_latest_shortsell():
     """)
     
     df = pd.read_sql(query, engine)
-    return jsonify(df.to_dict(orient='records'))
+    latest_date = df['trade_date'].iloc[0] if not df.empty else None
+    
+    return jsonify({
+        'data': df.to_dict(orient='records'),
+        'latest_date': latest_date.strftime('%Y-%m-%d') if latest_date else None
+    })
 
 @app.route('/api/shortsell/history/<stock_code>')
 def get_stock_shortsell_history(stock_code):

@@ -11,7 +11,13 @@ class ShortSellChart {
     async initTable() {
         try {
             const response = await fetch('/api/shortsell/latest');
-            this.allData = await response.json();
+            const result = await response.json();
+            this.allData = result.data;
+            
+            // 更新日期显示
+            if (result.latest_date) {
+                document.getElementById('latest-date').textContent = result.latest_date;
+            }
             
             this.updatePagination();
             this.renderTable();
@@ -93,7 +99,12 @@ class ShortSellChart {
             
             if (!data.length) return;
 
-            const dates = data.map(item => item.trade_date.split('T')[0]);
+            // 确保日期数据正确处理
+            const dates = data.map(item => {
+                const date = new Date(item.trade_date);
+                return date.toISOString().split('T')[0];
+            });
+
             const shortPrice = data.map(item => item.short_price);
             const shortAmount = data.map(item => item.short_amount);
             const totalAmount = data.map(item => item.total_amount);
@@ -107,6 +118,16 @@ class ShortSellChart {
                     trigger: 'axis',
                     axisPointer: {
                         type: 'cross'
+                    },
+                    formatter: function(params) {
+                        let result = `<div style="font-weight: bold">${params[0].axisValue}</div>`;
+                        params.forEach(param => {
+                            let value = param.seriesName.includes('价') ? 
+                                param.value.toFixed(2) + ' HKD' : 
+                                param.value.toFixed(2) + ' 万港元';
+                            result += `<div style="color: ${param.color}">${param.seriesName}: ${value}</div>`;
+                        });
+                        return result;
                     }
                 },
                 legend: {
@@ -121,18 +142,29 @@ class ShortSellChart {
                 },
                 xAxis: {
                     type: 'category',
-                    data: dates
+                    data: dates,
+                    axisLabel: {
+                        formatter: '{value}',
+                        interval: 0,
+                        rotate: 45
+                    }
                 },
                 yAxis: [
                     {
                         type: 'value',
                         name: '金额',
-                        position: 'left'
+                        position: 'left',
+                        axisLabel: {
+                            formatter: '{value} 万港元'
+                        }
                     },
                     {
                         type: 'value',
                         name: '价格',
-                        position: 'right'
+                        position: 'right',
+                        axisLabel: {
+                            formatter: '{value} HKD'
+                        }
                     }
                 ],
                 series: [
@@ -140,19 +172,28 @@ class ShortSellChart {
                         name: '沽空平均价',
                         type: 'line',
                         data: shortPrice,
-                        yAxisIndex: 1
+                        yAxisIndex: 1,
+                        itemStyle: {
+                            color: '#2563eb'  // 蓝色
+                        }
                     },
                     {
                         name: '沽空金额',
                         type: 'bar',
                         data: shortAmount,
-                        yAxisIndex: 0
+                        yAxisIndex: 0,
+                        itemStyle: {
+                            color: '#dc2626'  // 红色
+                        }
                     },
                     {
                         name: '总成交金额',
                         type: 'bar',
                         data: totalAmount,
-                        yAxisIndex: 0
+                        yAxisIndex: 0,
+                        itemStyle: {
+                            color: '#16a34a'  // 绿色
+                        }
                     }
                 ]
             };
