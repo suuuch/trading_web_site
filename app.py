@@ -96,5 +96,55 @@ def get_bonds_data(country):
     except Exception as e:
         return jsonify([])
 
+@app.route('/shortsell')
+def shortsell():
+    return render_template('shortsell.html', active_page='shortsell')
+
+@app.route('/api/shortsell/latest')
+def get_latest_shortsell():
+    query = text("""
+        WITH latest_date AS (
+            SELECT MAX(日期) as max_date 
+            FROM eastmoney_hkstock_shortsell
+        )
+        SELECT 
+            股票代码,
+            股票名称,
+            最新价,
+            "沽空数量(股)" as short_volume,
+            沽空平均价 as short_price,
+            "沽空金额(万港元)" as short_amount,
+            "总成交金额(万港元)" as total_amount,
+            "沽空占成交比例%" as short_ratio,
+            日期 as trade_date
+        FROM eastmoney_hkstock_shortsell, latest_date
+        WHERE 日期 = latest_date.max_date
+        ORDER BY "沽空占成交比例%" DESC
+    """)
+    
+    df = pd.read_sql(query, engine)
+    return jsonify(df.to_dict(orient='records'))
+
+@app.route('/api/shortsell/history/<stock_code>')
+def get_stock_shortsell_history(stock_code):
+    query = text(f"""
+        SELECT 
+            股票代码,
+            股票名称,
+            "沽空数量(股)" as short_volume,
+            沽空平均价 as short_price,
+            "沽空金额(万港元)" as short_amount,
+            "总成交金额(万港元)" as total_amount,
+            "沽空占成交比例%" as short_ratio,
+            日期 as trade_date
+        FROM eastmoney_hkstock_shortsell
+        WHERE 股票代码 = {stock_code}
+        AND 日期 >= CURRENT_DATE - INTERVAL '30 days'
+        ORDER BY 日期
+    """)
+    
+    df = pd.read_sql(query, engine)
+    return jsonify(df.to_dict(orient='records'))
+
 if __name__ == '__main__':
     app.run(debug=True)
