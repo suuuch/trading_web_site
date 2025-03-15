@@ -1,0 +1,25 @@
+<nav class="bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 text-white font-bold">
+                    金融数据可视化
+                </div>
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <a href="/" 
+                       class="{% if active_page == 'home' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                        ETF数据
+                    </a>
+                    <a href="/bonds" 
+                       class="{% if active_page == 'bonds' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                        债券数据
+                    </a>
+                    <a href="/shortsell" 
+                       class="{% if active_page == 'shortsell' %}bg-gray-900 text-white{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %} px-3 py-2 rounded-md text-sm font-medium">
+                        港股沽空
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav> 
