@@ -151,5 +151,43 @@ def get_stock_shortsell_history(stock_code):
     df = pd.read_sql(query, engine)
     return jsonify(df.to_dict(orient='records'))
 
+@app.route('/api/us_bonds')
+def get_us_bonds_data():
+    query = text("""
+        SELECT 
+            cast("Date" as date) as trade_date,
+            cast("1 Yr" as float) as yield_1y,
+            cast("10 Yr" as float) as yield_10y,
+            cast("20 Yr" as float) as yield_20y
+        FROM t_bonds_daily 
+        WHERE country = 'US' 
+            and "Date" >= '2024-01-01'
+        ORDER BY "Date" asc
+    """)
+    
+    try:
+        df = pd.read_sql(query, engine)
+        
+        if df.empty:
+            print("No data found in database")
+            return jsonify([])
+            
+        # 确保日期格式正确
+        df['trade_date'] = pd.to_datetime(df['trade_date']).dt.strftime('%Y-%m-%d')
+        
+        # 分别处理数值列
+        numeric_columns = ['yield_1y', 'yield_10y', 'yield_20y']
+        for col in numeric_columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            
+        # 删除任何空值
+        df = df.dropna()
+        
+        print(f"After processing: {len(df)} rows of data")
+        return jsonify(df.to_dict(orient='records'))
+    except Exception as e:
+        print(f"Error in get_us_bonds_data: {str(e)}")
+        return jsonify([])
+
 if __name__ == '__main__':
     app.run(debug=True)

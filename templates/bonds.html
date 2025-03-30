@@ -11,13 +11,20 @@
     {% include 'components/navbar.html' %}
 
     <div class="w-full px-4 py-8">
-        <!-- 债券图表 -->
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- 美日债券对比图表 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-bold mb-4">美日国债收益率对比</h2>
             <div id="bonds-chart" class="h-[600px]"></div>
+        </div>
+
+        <!-- 美债期限结构图表 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">美债收益率曲线</h2>
+            <div id="us-bonds-chart" class="h-[400px]"></div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/bondsChart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/usBondsChart.js') }}"></script>
 </body>
 </html> 
