@@ -189,5 +189,84 @@ def get_us_bonds_data():
         print(f"Error in get_us_bonds_data: {str(e)}")
         return jsonify([])
 
+@app.route('/options')
+def options():
+    return render_template('options.html', active_page='options')
+
+@app.route('/api/options/data/<symbol>')
+def get_options_data(symbol):
+    # 允许的symbol列表
+    allowed_symbols = ['GLD', 'UVXY', 'SPY', 'QQQ', 'TLT', 'IWM', 'KRE', 'FXI', 'SQQQ', 'HYG', 'BITO', 'AMD', 'TSLA', 'IAU']
+    
+    if symbol not in allowed_symbols:
+        return jsonify({'error': 'Invalid symbol'})
+    
+    query = text("""
+        WITH latest_date AS (
+            SELECT MAX(CAST(regular_market_datetime AS DATE)) as max_date
+            FROM options_data
+            WHERE symbol = :symbol
+        ),
+        summary AS (
+            SELECT 
+                cast(strike as float) as strike,
+                option_type,
+                expiration_date,
+                COALESCE(SUM(cast(volume as bigint)), 0) as total_volume,
+                COALESCE(SUM(cast(open_interest as bigint)), 0) as total_open_interest,
+                CASE 
+                    WHEN expiration_date <= CURRENT_DATE + INTERVAL '2 weeks' THEN 'short'
+                    WHEN expiration_date <= CURRENT_DATE + INTERVAL '3 months' THEN 'near'
+                    ELSE 'far'
+                END as term
+            FROM options_data, latest_date
+            WHERE symbol = :symbol
+            AND CAST(regular_market_datetime AS DATE) = latest_date.max_date
+            GROUP BY strike, option_type, expiration_date
+        )
+        SELECT 
+            strike,
+            option_type,
+            term,
+            total_volume,
+            total_open_interest
+        FROM summary
+        ORDER BY strike
+    """)
+    
+    try:
+        # 获取最新日期
+        date_query = text("""
+            SELECT MAX(CAST(regular_market_datetime AS DATE)) as latest_date
+            FROM options_data
+            WHERE symbol = :symbol
+        """)
+        latest_date = pd.read_sql(date_query, engine, params={'symbol': symbol}).iloc[0]['latest_date']
+        
+        df = pd.read_sql(query, engine, params={'symbol': symbol})
+        
+        # 确保数值类型正确
+        df['strike'] = pd.to_numeric(df['strike'], errors='coerce')
+        df['total_volume'] = pd.to_numeric(df['total_volume'], errors='coerce')
+        df['total_open_interest'] = pd.to_numeric(df['total_open_interest'], errors='coerce')
+        
+        # 删除任何空值
+        df = df.dropna()
+        
+        # 分离短期、近期和远期数据
+        short_term = df[df['term'] == 'short'].to_dict(orient='records')
+        near_term = df[df['term'] == 'near'].to_dict(orient='records')
+        far_term = df[df['term'] == 'far'].to_dict(orient='records')
+        
+        return jsonify({
+            'short_term': short_term,
+            'near_term': near_term,
+            'far_term': far_term,
+            'latest_date': latest_date.strftime('%Y-%m-%d') if latest_date else None
+        })
+    except Exception as e:
+        print(f"Error in get_options_data: {str(e)}")
+        return jsonify({'error': str(e)})
+
 if __name__ == '__main__':
     app.run(debug=True)

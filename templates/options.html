@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Options Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    {% include 'components/navbar.html' %}
+
+    <div class="w-full px-4 py-8">
+        <!-- 控制面板 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-64">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">标的代码</label>
+                        <select id="symbol-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">请选择</option>
+                            <option value="GLD">GLD</option>
+                            <option value="UVXY">UVXY</option>
+                            <option value="SPY">SPY</option>
+                            <option value="QQQ">QQQ</option>
+                            <option value="TLT">TLT</option>
+                            <option value="IWM">IWM</option>
+                            <option value="KRE">KRE</option>
+                            <option value="FXI">FXI</option>
+                            <option value="SQQQ">SQQQ</option>
+                            <option value="HYG">HYG</option>
+                            <option value="BITO">BITO</option>
+                            <option value="AMD">AMD</option>
+                            <option value="TSLA">TSLA</option>
+                            <option value="IAU">IAU</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="text-gray-600">
+                    数据日期：<span id="latest-date" class="font-medium"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 短期期权图表 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">短期期权数据 (2周内)</h2>
+            <div id="short-term-chart" class="h-[400px]"></div>
+        </div>
+
+        <!-- 近期期权图表 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">近期期权数据 (2周-3个月)</h2>
+            <div id="near-term-chart" class="h-[400px]"></div>
+        </div>
+
+        <!-- 远期期权图表 -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold mb-4">远期期权数据 (3个月以上)</h2>
+            <div id="far-term-chart" class="h-[400px]"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/optionsChart.js') }}"></script>
+</body>
+</html> 
