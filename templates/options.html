@@ -42,6 +42,42 @@
             </div>
         </div>
 
+        <!-- 期权持仓市值统计表格 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">项目</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">多头 (Call)</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">空头 (Put)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">主战场持仓 (近价位)</td>
+                            <td id="main-battle-call" class="px-6 py-4 whitespace-nowrap text-right text-blue-600">-</td>
+                            <td id="main-battle-put" class="px-6 py-4 whitespace-nowrap text-right text-red-600">-</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">2</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">后援部队 (远价位)</td>
+                            <td id="support-call" class="px-6 py-4 whitespace-nowrap text-right text-blue-600">-</td>
+                            <td id="support-put" class="px-6 py-4 whitespace-nowrap text-right text-red-600">-</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">3</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">合计</td>
+                            <td id="total-call" class="px-6 py-4 whitespace-nowrap text-right text-blue-600 font-bold">-</td>
+                            <td id="total-put" class="px-6 py-4 whitespace-nowrap text-right text-red-600 font-bold">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- 短期期权图表 -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 class="text-xl font-bold mb-4">短期期权数据 (2周内)</h2>

@@ -268,5 +268,87 @@ def get_options_data(symbol):
         print(f"Error in get_options_data: {str(e)}")
         return jsonify({'error': str(e)})
 
+@app.route('/api/options/position_value/<symbol>')
+def get_options_position_value(symbol):
+    # 允许的symbol列表
+    allowed_symbols = ['GLD', 'UVXY', 'SPY', 'QQQ', 'TLT', 'IWM', 'KRE', 'FXI', 'SQQQ', 'HYG', 'BITO', 'AMD', 'TSLA', 'IAU']
+    
+    if symbol not in allowed_symbols:
+        return jsonify({'error': 'Invalid symbol'})
+    
+    query = text("""
+        WITH latest_date AS (
+            SELECT MAX(CAST(regular_market_datetime AS DATE)) as max_date
+            FROM options_data
+            WHERE symbol = :symbol
+        ),
+        latest_price AS (
+            SELECT "Close" as last_price
+            FROM t_yf_stock_daily, latest_date
+            WHERE symbol = :symbol
+            AND cast("Date" as date) = latest_date.max_date
+        ),
+        summary AS (
+            SELECT 
+                option_type,
+                CASE 
+                    WHEN ABS(strike - latest_price.last_price) / latest_price.last_price <= 0.1 THEN 'main'  -- 10%以内为主战场
+                    ELSE 'support'  -- 其他为后援部队
+                END as position_type,
+                SUM(open_interest * 100 * strike) as notional_value  -- 100是每张期权对应的股数
+            FROM options_data, latest_date, latest_price
+            WHERE symbol = :symbol
+            AND CAST(regular_market_datetime AS DATE) = latest_date.max_date
+            GROUP BY 
+                option_type,
+                CASE 
+                    WHEN ABS(strike - latest_price.last_price) / latest_price.last_price <= 0.1 THEN 'main'
+                    ELSE 'support'
+                END
+        )
+        SELECT 
+            option_type,
+            position_type,
+            notional_value / 100000000.0 as value_billions  -- 转换为亿美元
+        FROM summary
+    """)
+    
+    try:
+        df = pd.read_sql(query, engine, params={'symbol': symbol})
+        
+        # 处理数据为所需格式
+        result = {
+            'main_battle': {
+                'call': 0.0,
+                'put': 0.0
+            },
+            'support': {
+                'call': 0.0,
+                'put': 0.0
+            },
+            'total': {
+                'call': 0.0,
+                'put': 0.0
+            }
+        }
+        
+        for _, row in df.iterrows():
+            position_key = 'main_battle' if row['position_type'] == 'main' else 'support'
+            option_type = row['option_type']
+            value = float(row['value_billions'])
+            
+            result[position_key][option_type] = round(value, 2)
+            result['total'][option_type] += value
+        
+        # 四舍五入总计
+        result['total']['call'] = round(result['total']['call'], 2)
+        result['total']['put'] = round(result['total']['put'], 2)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"Error in get_options_position_value: {str(e)}")
+        return jsonify({'error': str(e)})
+
 if __name__ == '__main__':
     app.run(debug=True)

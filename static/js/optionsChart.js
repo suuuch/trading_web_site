@@ -18,6 +18,14 @@ class OptionsChart {
         if (!symbol) return;
         
         try {
+            // 加载期权持仓市值数据
+            const valueResponse = await fetch(`/api/options/position_value/${symbol}`);
+            const valueData = await valueResponse.json();
+            if (!valueData.error) {
+                this.updatePositionTable(valueData);
+            }
+
+            // 加载期权图表数据
             const response = await fetch(`/api/options/data/${symbol}`);
             const data = await response.json();
             
@@ -210,6 +218,25 @@ class OptionsChart {
         this.shortTermChart && this.shortTermChart.resize();
         this.nearTermChart && this.nearTermChart.resize();
         this.farTermChart && this.farTermChart.resize();
+    }
+
+    updatePositionTable(data) {
+        if (!data) return;
+        
+        // 格式化数字为带亿单位的字符串
+        const formatValue = (value) => value.toFixed(0) + ' 亿美元';
+        
+        // 更新主战场数据
+        document.getElementById('main-battle-call').textContent = formatValue(data.main_battle.call);
+        document.getElementById('main-battle-put').textContent = formatValue(data.main_battle.put);
+        
+        // 更新后援部队数据
+        document.getElementById('support-call').textContent = formatValue(data.support.call);
+        document.getElementById('support-put').textContent = formatValue(data.support.put);
+        
+        // 更新合计数据
+        document.getElementById('total-call').textContent = formatValue(data.total.call);
+        document.getElementById('total-put').textContent = formatValue(data.total.put);
     }
 }
 
